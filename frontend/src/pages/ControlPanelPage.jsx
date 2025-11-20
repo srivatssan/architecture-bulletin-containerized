@@ -83,7 +83,10 @@ const ControlPanelPage = () => {
         }, 500);
       } else {
         // Add architect via backend API
+        console.log('Adding architect via backend API...');
+
         const currentArchitects = await apiClient.getArchitects();
+        console.log('Current architects response:', currentArchitects);
         const existingArchitects = currentArchitects.data.architects || [];
 
         // Create new architect object
@@ -100,6 +103,8 @@ const ControlPanelPage = () => {
           deactivatedBy: null,
         };
 
+        console.log('New architect to add:', newArchitect);
+
         // Check if architect already exists
         const exists = existingArchitects.some(
           a => a.githubUsername === formData.githubUsername
@@ -109,8 +114,12 @@ const ControlPanelPage = () => {
           throw new Error(`Architect ${formData.githubUsername} already exists`);
         }
 
+        const updatedArchitects = [...existingArchitects, newArchitect];
+        console.log('Sending architects to backend:', updatedArchitects);
+
         // Update architects list via API
-        await apiClient.updateArchitects([...existingArchitects, newArchitect]);
+        const updateResponse = await apiClient.updateArchitects(updatedArchitects);
+        console.log('Backend update response:', updateResponse);
 
         setSuccess(`Architect "${formData.displayName}" added successfully!`);
 
@@ -123,6 +132,8 @@ const ControlPanelPage = () => {
         }, 500);
       }
     } catch (err) {
+      console.error('Error adding architect:', err);
+      setError(`Failed to add architect: ${err.message}`);
       throw err; // Re-throw to be handled by modal
     }
   };
