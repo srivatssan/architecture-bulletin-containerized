@@ -9,18 +9,22 @@ export function validatePost(req, res, next) {
   const { title, description } = req.body;
   const errors = [];
 
-  // Title validation
-  if (!title || title.trim().length === 0) {
-    errors.push({ field: 'title', message: 'Title is required' });
-  } else if (title.length > 200) {
-    errors.push({ field: 'title', message: 'Title must be 200 characters or less' });
+  // Only validate title if it's being updated
+  if (title !== undefined) {
+    if (!title || title.trim().length === 0) {
+      errors.push({ field: 'title', message: 'Title is required' });
+    } else if (title.length > 200) {
+      errors.push({ field: 'title', message: 'Title must be 200 characters or less' });
+    }
   }
 
-  // Description validation
-  if (!description || description.trim().length === 0) {
-    errors.push({ field: 'description', message: 'Description is required' });
-  } else if (description.length > 5000) {
-    errors.push({ field: 'description', message: 'Description must be 5000 characters or less' });
+  // Only validate description if it's being updated
+  if (description !== undefined) {
+    if (!description || description.trim().length === 0) {
+      errors.push({ field: 'description', message: 'Description is required' });
+    } else if (description.length > 5000) {
+      errors.push({ field: 'description', message: 'Description must be 5000 characters or less' });
+    }
   }
 
   if (errors.length > 0) {
