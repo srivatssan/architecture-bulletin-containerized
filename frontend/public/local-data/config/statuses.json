@@ -1,0 +1,75 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-11-18T22:30:00Z",
+  "updatedBy": "admin",
+  "statuses": [
+    {
+      "id": "status-new",
+      "name": "New",
+      "description": "Task created but not yet assigned or started",
+      "color": "#6B7280",
+      "order": 1,
+      "isDefault": true,
+      "canTransitionTo": ["status-assigned"],
+      "adminOnly": false,
+      "triggersNotification": false
+    },
+    {
+      "id": "status-assigned",
+      "name": "Assigned-InProgress",
+      "description": "Task assigned to architect(s) and work is in progress",
+      "color": "#3B82F6",
+      "order": 2,
+      "isDefault": false,
+      "canTransitionTo": ["status-submitted", "status-escalate"],
+      "adminOnly": false,
+      "triggersNotification": false
+    },
+    {
+      "id": "status-submitted",
+      "name": "Submitted for Review",
+      "description": "Architect has submitted deliverable for admin review",
+      "color": "#8B5CF6",
+      "order": 3,
+      "isDefault": false,
+      "canTransitionTo": ["status-pending", "status-assigned"],
+      "adminOnly": false,
+      "triggersNotification": false
+    },
+    {
+      "id": "status-pending",
+      "name": "Pending Review",
+      "description": "Admin is reviewing submitted deliverable",
+      "color": "#F59E0B",
+      "order": 4,
+      "isDefault": false,
+      "canTransitionTo": ["status-closed", "status-assigned", "status-escalate"],
+      "adminOnly": true,
+      "triggersNotification": false
+    },
+    {
+      "id": "status-escalate",
+      "name": "Escalate",
+      "description": "Task is blocked or requires urgent attention",
+      "color": "#EF4444",
+      "order": 5,
+      "isDefault": false,
+      "canTransitionTo": ["status-assigned", "status-closed"],
+      "adminOnly": false,
+      "triggersNotification": true,
+      "notificationType": "escalation"
+    },
+    {
+      "id": "status-closed",
+      "name": "Closed",
+      "description": "Task completed and approved by admin",
+      "color": "#10B981",
+      "order": 6,
+      "isDefault": false,
+      "canTransitionTo": [],
+      "adminOnly": true,
+      "triggersNotification": true,
+      "notificationType": "closure"
+    }
+  ]
+}

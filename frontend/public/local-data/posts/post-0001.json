@@ -1,0 +1,21 @@
+{
+  "id": "post-0001",
+  "title": "Design System Update - New Component Library",
+  "description": "We need to update our design system to include new component patterns for the dashboard redesign project. This includes:\n\n1. Updated button styles with new accessibility features\n2. New card component variants\n3. Enhanced form inputs with validation states\n4. Responsive navigation patterns\n\nThe design team has completed the Figma mockups and they're ready for review. We need an architect to assess the technical implementation approach and provide effort estimates.\n\nDeadline: End of Q4",
+  "concernedParties": ["frontend-team", "design-team", "product-management"],
+  "status": "status-new",
+  "assignedArchitects": [],
+  "adminAssigned": false,
+  "attachments": [],
+  "createdAt": "2025-11-15T10:30:00.000Z",
+  "createdBy": "admin",
+  "updatedAt": "2025-11-15T10:30:00.000Z",
+  "updatedBy": "admin",
+  "submittedAt": null,
+  "submittedBy": null,
+  "closedAt": null,
+  "closedBy": null,
+  "approvedBy": null,
+  "isArchived": false,
+  "archivedAt": null
+}

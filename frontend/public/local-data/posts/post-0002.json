@@ -1,0 +1,21 @@
+{
+  "id": "post-0002",
+  "title": "API Gateway Migration to v2",
+  "description": "Current API gateway is reaching EOL. We need to migrate to v2 with the following considerations:\n\n**Technical Requirements:**\n- Maintain backward compatibility for 6 months\n- Implement rate limiting per client\n- Add OAuth 2.0 support\n- Improve error handling and logging\n\n**Business Impact:**\n- ~500K requests/day affected\n- 12 internal services depend on current gateway\n- Mobile app needs SDK update\n\n**Timeline:**\n- Architecture review needed by Dec 1st\n- Implementation Q1 2026\n\nArchitect1 is currently reviewing the proposed architecture and will provide recommendations by end of week.",
+  "concernedParties": ["backend-team", "mobile-team", "devops", "security-team"],
+  "status": "status-assigned",
+  "assignedArchitects": ["architect1"],
+  "adminAssigned": true,
+  "attachments": [],
+  "createdAt": "2025-11-10T14:20:00.000Z",
+  "createdBy": "admin",
+  "updatedAt": "2025-11-12T09:15:00.000Z",
+  "updatedBy": "admin",
+  "submittedAt": null,
+  "submittedBy": null,
+  "closedAt": null,
+  "closedBy": null,
+  "approvedBy": null,
+  "isArchived": false,
+  "archivedAt": null
+}

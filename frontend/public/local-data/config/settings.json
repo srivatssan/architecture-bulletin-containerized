@@ -1,0 +1,24 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-11-18T22:30:00Z",
+  "updatedBy": "admin",
+  "taskLimit": {
+    "maxActiveTasks": 50,
+    "bannerMessage": "We've reached our task capacity of 50 items. Please consider archiving completed tasks to free up space.",
+    "showBanner": true
+  },
+  "adminUsers": [
+    "admin"
+  ],
+  "repositoryConfig": {
+    "owner": "local",
+    "dataRepo": "local-data"
+  },
+  "features": {
+    "allowSelfAssignment": true,
+    "requireApprovalForClosure": true,
+    "enableNotifications": true,
+    "enableArchive": true,
+    "enableExport": true
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "post-0003",
+  "title": "Database Sharding Strategy for User Service",
+  "description": "User database has reached 50M records and query performance is degrading. Proposal to implement horizontal sharding:\n\n**Proposed Approach:**\n- Shard by user_id hash (16 shards initially)\n- Use consistent hashing for distribution\n- Implement shard-aware connection pooling\n- Add read replicas per shard\n\n**Challenges Identified:**\n- Cross-shard queries need aggregation layer\n- Migration requires careful planning (zero downtime)\n- Application changes needed in 8 microservices\n\n**Performance Goals:**\n- Query latency < 100ms (p95)\n- Support 100M users\n- 10x write throughput improvement\n\nArchitect2 has submitted initial design document with detailed implementation phases. Pending admin review before moving to implementation.",
+  "concernedParties": ["backend-team", "database-team", "platform-team"],
+  "status": "status-submitted",
+  "assignedArchitects": ["architect2"],
+  "adminAssigned": false,
+  "attachments": [],
+  "createdAt": "2025-11-08T11:00:00.000Z",
+  "createdBy": "admin",
+  "updatedAt": "2025-11-18T16:45:00.000Z",
+  "updatedBy": "architect2",
+  "submittedAt": "2025-11-18T16:45:00.000Z",
+  "submittedBy": "architect2",
+  "closedAt": null,
+  "closedBy": null,
+  "approvedBy": null,
+  "isArchived": false,
+  "archivedAt": null
+}

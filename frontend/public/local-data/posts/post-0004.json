@@ -1,0 +1,21 @@
+{
+  "id": "post-0004",
+  "title": "Microservices Logging Standardization",
+  "description": "Standardize logging across all microservices for better observability and debugging.\n\n**Implementation Completed:**\n- Adopted structured JSON logging format\n- Implemented correlation ID tracking\n- Set up centralized log aggregation (ELK stack)\n- Created logging library with standard fields\n- Updated all 15 microservices\n\n**Results:**\n- Average debugging time reduced by 40%\n- Cross-service tracing now possible\n- Automated alerting on error patterns\n- Log retention optimized (storage cost -30%)\n\n**Documentation:**\n- Logging standards guide published\n- Training session conducted for all teams\n- Runbooks updated with troubleshooting workflows\n\nThis initiative has been successfully completed and closed. Great work by Architect1!",
+  "concernedParties": ["all-engineering-teams", "devops", "sre-team"],
+  "status": "status-closed",
+  "assignedArchitects": ["architect1"],
+  "adminAssigned": true,
+  "attachments": [],
+  "createdAt": "2025-10-01T09:00:00.000Z",
+  "createdBy": "admin",
+  "updatedAt": "2025-11-05T14:30:00.000Z",
+  "updatedBy": "admin",
+  "submittedAt": "2025-11-02T10:00:00.000Z",
+  "submittedBy": "architect1",
+  "closedAt": "2025-11-05T14:30:00.000Z",
+  "closedBy": "admin",
+  "approvedBy": "admin",
+  "isArchived": false,
+  "archivedAt": null
+}

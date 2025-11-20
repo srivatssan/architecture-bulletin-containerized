@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-11-18T22:30:00Z",
+  "users": [
+    {
+      "id": "user-admin-1",
+      "username": "admin",
+      "password": "admin123",
+      "displayName": "Admin User",
+      "email": "admin@example.com",
+      "role": "admin",
+      "avatar": "https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff",
+      "active": true
+    },
+    {
+      "id": "user-arch-1",
+      "username": "architect1",
+      "password": "arch123",
+      "displayName": "Alice Architect",
+      "email": "alice@example.com",
+      "role": "architect",
+      "avatar": "https://ui-avatars.com/api/?name=Alice+Architect&background=8B5CF6&color=fff",
+      "active": true
+    },
+    {
+      "id": "user-arch-2",
+      "username": "architect2",
+      "password": "arch123",
+      "displayName": "Bob Builder",
+      "email": "bob@example.com",
+      "role": "architect",
+      "avatar": "https://ui-avatars.com/api/?name=Bob+Builder&background=3B82F6&color=fff",
+      "active": true
+    }
+  ]
+}

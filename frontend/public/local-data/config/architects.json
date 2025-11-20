@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-11-18T22:30:00Z",
+  "updatedBy": "admin",
+  "architects": [
+    {
+      "id": "arch-001",
+      "githubUsername": "architect1",
+      "displayName": "Alice Architect",
+      "email": "alice@example.com",
+      "specialization": "Frontend Architecture",
+      "status": "active",
+      "addedAt": "2025-11-18T22:30:00Z",
+      "addedBy": "admin",
+      "deactivatedAt": null,
+      "deactivatedBy": null
+    },
+    {
+      "id": "arch-002",
+      "githubUsername": "architect2",
+      "displayName": "Bob Builder",
+      "email": "bob@example.com",
+      "specialization": "Backend Architecture",
+      "status": "active",
+      "addedAt": "2025-11-18T22:30:00Z",
+      "addedBy": "admin",
+      "deactivatedAt": null,
+      "deactivatedBy": null
+    }
+  ]
+}
