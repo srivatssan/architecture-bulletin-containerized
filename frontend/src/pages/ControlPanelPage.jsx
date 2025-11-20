@@ -63,7 +63,7 @@ const ControlPanelPage = () => {
       // Create new architect object
       const newArchitect = {
         id: `arch-${Date.now()}`,
-        githubUsername: formData.githubUsername,
+        githubUsername: formData.username, // Modal sends 'username', not 'githubUsername'
         displayName: formData.displayName,
         email: formData.email || '',
         specialization: formData.specialization || '',
@@ -78,11 +78,11 @@ const ControlPanelPage = () => {
 
       // Check if architect already exists
       const exists = existingArchitects.some(
-        a => a.githubUsername === formData.githubUsername
+        a => a.githubUsername === formData.username
       );
 
       if (exists) {
-        throw new Error(`Architect ${formData.githubUsername} already exists`);
+        throw new Error(`Architect ${formData.username} already exists`);
       }
 
       const updatedArchitects = [...existingArchitects, newArchitect];
