@@ -640,7 +640,7 @@ const PostDetailPage = () => {
                   >
                     <option value="">Select an architect...</option>
                     {architects
-                      .filter(arch => !post.assignedArchitects.includes(arch.githubUsername))
+                      .filter(arch => !(post.assignedArchitects || []).includes(arch.githubUsername))
                       .map((architect) => (
                         <option key={architect.id} value={architect.githubUsername}>
                           {architect.displayName} ({architect.specialization})
