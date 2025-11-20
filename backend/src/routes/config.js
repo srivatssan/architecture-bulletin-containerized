@@ -239,4 +239,84 @@ router.put('/statuses', authenticate, requireAdmin, async (req, res) => {
   }
 });
 
+/**
+ * POST /api/config/users - Create new user (admin only)
+ */
+router.post('/users', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const storage = getStorageProvider();
+    const { username, password, role, fullName } = req.body;
+
+    // Validation
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Username and password are required'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Get current users
+    const current = await storage.getJson('config/users.json');
+    const users = current?.data?.users || [];
+
+    // Check if user already exists
+    const exists = users.some(u => u.username === username);
+    if (exists) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'USER_EXISTS',
+          message: `User ${username} already exists`
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Add new user
+    const newUser = {
+      username,
+      password, // In production, this should be hashed
+      role: role || 'architect',
+      fullName: fullName || username
+    };
+
+    users.push(newUser);
+
+    const data = { users };
+
+    // Save
+    await storage.saveJson(
+      'config/users.json',
+      data,
+      `Add user ${username} by ${req.user.username}`,
+      current?.sha
+    );
+
+    // Return without password
+    res.status(201).json({
+      success: true,
+      data: {
+        username: newUser.username,
+        role: newUser.role,
+        fullName: newUser.fullName
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'CREATE_FAILED',
+        message: error.message
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 export default router;

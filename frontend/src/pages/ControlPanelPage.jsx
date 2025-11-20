@@ -24,12 +24,26 @@ const ControlPanelPage = () => {
 
   // Data state
   const [architects, setArchitects] = useState([]);
+  const [newCredentials, setNewCredentials] = useState(null);
 
   // Load data
   useEffect(() => {
     loadData();
     fetchPosts();
   }, [fetchPosts]);
+
+  // Generate secure random password
+  const generatePassword = () => {
+    const length = 12;
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let password = '';
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    for (let i = 0; i < length; i++) {
+      password += charset[array[i] % charset.length];
+    }
+    return password;
+  };
 
   const loadData = async () => {
     try {
@@ -53,17 +67,27 @@ const ControlPanelPage = () => {
       setError('');
       setSuccess('');
 
-      // Add architect via backend API
-      console.log('Adding architect via backend API...');
+      // Generate secure password
+      const password = generatePassword();
 
+      // Step 1: Create user account
+      console.log('Creating user account...');
+      await apiClient.createUser(
+        formData.username,
+        password,
+        'architect',
+        formData.displayName
+      );
+
+      // Step 2: Add architect configuration
+      console.log('Adding architect configuration...');
       const currentArchitects = await apiClient.getArchitects();
-      console.log('Current architects response:', currentArchitects);
       const existingArchitects = currentArchitects.data.architects || [];
 
       // Create new architect object
       const newArchitect = {
         id: `arch-${Date.now()}`,
-        githubUsername: formData.username, // Modal sends 'username', not 'githubUsername'
+        githubUsername: formData.username,
         displayName: formData.displayName,
         email: formData.email || '',
         specialization: formData.specialization || '',
@@ -73,8 +97,6 @@ const ControlPanelPage = () => {
         deactivatedAt: null,
         deactivatedBy: null,
       };
-
-      console.log('New architect to add:', newArchitect);
 
       // Check if architect already exists
       const exists = existingArchitects.some(
@@ -86,11 +108,14 @@ const ControlPanelPage = () => {
       }
 
       const updatedArchitects = [...existingArchitects, newArchitect];
-      console.log('Sending architects to backend:', updatedArchitects);
+      await apiClient.updateArchitects(updatedArchitects);
 
-      // Update architects list via API
-      const updateResponse = await apiClient.updateArchitects(updatedArchitects);
-      console.log('Backend update response:', updateResponse);
+      // Show credentials
+      setNewCredentials({
+        username: formData.username,
+        password: password,
+        displayName: formData.displayName,
+      });
 
       setSuccess(`Architect "${formData.displayName}" added successfully!`);
 
@@ -148,6 +173,10 @@ const ControlPanelPage = () => {
     navigator.clipboard.writeText(text);
     setSuccess('Copied to clipboard!');
     setTimeout(() => setSuccess(''), 2000);
+  };
+
+  const closeCredentialsModal = () => {
+    setNewCredentials(null);
   };
 
   const handleArchivePost = async (postId) => {
@@ -496,92 +525,18 @@ const ControlPanelPage = () => {
                 )}
 
                 {/* Users Tab */}
-                {activeTab === 'users' && APP_MODE === 'local' && (
-                  <div>
-                    <div className="mb-6">
-                      <h2 className="text-xl font-semibold text-gray-900">All Users</h2>
-                      <p className="text-sm text-gray-600 mt-1">
-                        View all user accounts in the system
-                      </p>
-                    </div>
-
-                    {users.length === 0 ? (
-                      <div className="text-center py-12 bg-gray-50 rounded-lg">
-                        <p className="text-gray-600">No users found.</p>
-                      </div>
-                    ) : (
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                User
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Username
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Role
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Email
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {users.map((u) => (
-                              <tr key={u.username} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="flex items-center">
-                                    <img
-                                      src={u.avatar}
-                                      alt={u.displayName}
-                                      className="w-10 h-10 rounded-full bg-gray-200"
-                                    />
-                                    <div className="ml-4">
-                                      <div className="text-sm font-medium text-gray-900">
-                                        {u.displayName}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="text-sm text-gray-900">{u.username}</div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span
-                                    className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                      u.role === 'admin'
-                                        ? 'bg-purple-100 text-purple-800'
-                                        : 'bg-blue-100 text-blue-800'
-                                    }`}
-                                  >
-                                    {u.role}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                  {u.email}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span
-                                    className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                      u.active
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-red-100 text-red-800'
-                                    }`}
-                                  >
-                                    {u.active ? 'Active' : 'Inactive'}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
+                {activeTab === 'users' && (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg">
+                    <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">User Management</h3>
+                    <p className="text-gray-600">
+                      Users are managed through the architect creation process.
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      When you add an architect, a user account is automatically created.
+                    </p>
                   </div>
                 )}
               </>
@@ -596,6 +551,96 @@ const ControlPanelPage = () => {
         onClose={() => setIsAddModalOpen(false)}
         onArchitectAdded={handleAddArchitect}
       />
+
+      {/* New Credentials Modal */}
+      {newCredentials && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="mb-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Architect Account Created Successfully!
+              </h3>
+              <p className="text-sm text-gray-600">
+                Save these credentials - they won't be shown again.
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              {/* Display Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Display Name
+                </label>
+                <div className="p-3 bg-gray-50 rounded border border-gray-200">
+                  <p className="text-sm font-mono text-gray-900">{newCredentials.displayName}</p>
+                </div>
+              </div>
+
+              {/* Username */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Username
+                </label>
+                <div className="flex items-center space-x-2">
+                  <div className="flex-1 p-3 bg-gray-50 rounded border border-gray-200">
+                    <p className="text-sm font-mono text-gray-900">{newCredentials.username}</p>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(newCredentials.username)}
+                    className="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    title="Copy username"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password
+                </label>
+                <div className="flex items-center space-x-2">
+                  <div className="flex-1 p-3 bg-gray-50 rounded border border-gray-200">
+                    <p className="text-sm font-mono text-gray-900">{newCredentials.password}</p>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(newCredentials.password)}
+                    className="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    title="Copy password"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Warning Message */}
+            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
+              <div className="flex items-start">
+                <svg className="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <p className="text-sm text-yellow-800">
+                  <strong>Important:</strong> Make sure to save these credentials securely. The password cannot be recovered later.
+                </p>
+              </div>
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={closeCredentialsModal}
+              className="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

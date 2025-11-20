@@ -191,6 +191,13 @@ class ApiClient {
     });
   }
 
+  async createUser(username, password, role, fullName) {
+    return this.request('/api/config/users', {
+      method: 'POST',
+      body: JSON.stringify({ username, password, role, fullName }),
+    });
+  }
+
   // ==================== File Uploads ====================
 
   async uploadAttachment(postId, filename, content) {
