@@ -150,10 +150,6 @@ const ControlPanelPage = () => {
     setTimeout(() => setSuccess(''), 2000);
   };
 
-  const closeCredentialsModal = () => {
-    setNewCredentials(null);
-  };
-
   const handleArchivePost = async (postId) => {
     if (!confirm('Archive this post? It will be removed from active posts and free up a slot.')) {
       return;
@@ -601,82 +597,6 @@ const ControlPanelPage = () => {
         onArchitectAdded={handleAddArchitect}
       />
 
-      {/* Credentials Display Modal */}
-      {newCredentials && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-            <div className="px-6 py-4 border-b border-gray-200 bg-green-50">
-              <h2 className="text-xl font-bold text-green-900">✓ Architect Created Successfully!</h2>
-            </div>
-            <div className="p-6">
-              <p className="text-sm text-gray-600 mb-4">
-                Save these credentials securely. The password will not be shown again.
-              </p>
-
-              <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Display Name
-                  </label>
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-semibold text-gray-900">
-                      {newCredentials.displayName}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Username
-                  </label>
-                  <div className="flex items-center justify-between">
-                    <code className="text-lg font-mono text-gray-900">
-                      {newCredentials.username}
-                    </code>
-                    <button
-                      onClick={() => copyToClipboard(newCredentials.username)}
-                      className="ml-2 text-blue-600 hover:text-blue-800 text-sm"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-yellow-50 p-4 rounded-md border border-yellow-300">
-                  <label className="block text-sm font-medium text-yellow-900 mb-1">
-                    Password (Generated)
-                  </label>
-                  <div className="flex items-center justify-between">
-                    <code className="text-lg font-mono text-yellow-900 font-bold">
-                      {newCredentials.password}
-                    </code>
-                    <button
-                      onClick={() => copyToClipboard(newCredentials.password)}
-                      className="ml-2 text-yellow-700 hover:text-yellow-900 text-sm font-medium"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                <p className="text-xs text-blue-800">
-                  <strong>Important:</strong> Share these credentials securely with the new architect.
-                  They can use them to login at the login page.
-                </p>
-              </div>
-
-              <button
-                onClick={closeCredentialsModal}
-                className="mt-6 w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
