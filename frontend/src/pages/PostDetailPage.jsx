@@ -43,8 +43,12 @@ const PostDetailPage = () => {
   const loadArchitects = async () => {
     try {
       const response = await apiClient.getArchitects();
+      console.log('Architects API response:', response);
       if (response.success && response.data) {
+        console.log('Setting architects:', response.data.architects);
         setArchitects(response.data.architects || []);
+      } else {
+        console.log('No architect data in response');
       }
     } catch (err) {
       console.error('Failed to load architects:', err);
@@ -631,6 +635,8 @@ const PostDetailPage = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Assign Architect
                   </label>
+                  {console.log('All architects:', architects)}
+                  {console.log('Filtered architects:', architects.filter(arch => arch.status === 'active' && !(post.assignedArchitects || []).includes(arch.githubUsername)))}
                   <select
                     value={selectedArchitect}
                     onChange={(e) => setSelectedArchitect(e.target.value)}
@@ -639,7 +645,7 @@ const PostDetailPage = () => {
                   >
                     <option value="">Select an architect...</option>
                     {architects
-                      .filter(arch => !(post.assignedArchitects || []).includes(arch.githubUsername))
+                      .filter(arch => arch.status === 'active' && !(post.assignedArchitects || []).includes(arch.githubUsername))
                       .map((architect) => (
                         <option key={architect.id} value={architect.githubUsername}>
                           {architect.displayName} ({architect.specialization})
