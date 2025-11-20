@@ -18,7 +18,7 @@ const PostDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
-  const { fetchPost, updatePost, updateStatus, assignArchitect, deletePost } = usePosts();
+  const { fetchPost, updatePost, updateStatus, assignArchitects, deletePost } = usePosts();
 
   const [post, setPost] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -153,7 +153,13 @@ const PostDetailPage = () => {
       setIsAssigning(true);
       setError('');
 
-      await assignArchitect(id, selectedArchitect, user.username, isAdmin());
+      // Get current assigned architects or empty array
+      const currentArchitects = post.assignedArchitects || [];
+
+      // Add new architect to the list
+      const updatedArchitects = [...currentArchitects, selectedArchitect];
+
+      await assignArchitects(id, updatedArchitects);
       setSuccess(`Architect ${selectedArchitect} assigned successfully!`);
       setSelectedArchitect('');
       await loadPost();
