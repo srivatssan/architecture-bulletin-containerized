@@ -169,6 +169,34 @@ const ControlPanelPage = () => {
     }
   };
 
+  const handleDeleteArchitect = async (username, displayName) => {
+    if (!confirm(`Are you sure you want to permanently DELETE architect "${displayName}"?\n\nThis will permanently remove:\n- Architect configuration\n- User account\n\nThis action CANNOT be undone.`)) {
+      return;
+    }
+
+    try {
+      setError('');
+      setSuccess('');
+
+      // Get current architects
+      const currentArchitects = await apiClient.getArchitects();
+      const existingArchitects = currentArchitects.data.architects || [];
+
+      // Filter out the architect to delete
+      const updatedArchitects = existingArchitects.filter(
+        arch => arch.githubUsername !== username
+      );
+
+      // Update architects list via API
+      await apiClient.updateArchitects(updatedArchitects);
+
+      setSuccess(`Architect "${displayName}" has been permanently deleted.`);
+      await loadData();
+    } catch (err) {
+      setError('Failed to delete architect: ' + err.message);
+    }
+  };
+
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     setSuccess('Copied to clipboard!');
@@ -508,14 +536,22 @@ const ControlPanelPage = () => {
                                   </p>
                                 </div>
                               </div>
-                              {architect.status === 'active' && (
+                              <div className="flex-shrink-0 flex items-center space-x-2">
+                                {architect.status === 'active' && (
+                                  <button
+                                    onClick={() => handleRemoveArchitect(architect.githubUsername)}
+                                    className="px-3 py-1 text-sm text-orange-600 border border-orange-300 rounded hover:bg-orange-50"
+                                  >
+                                    Deactivate
+                                  </button>
+                                )}
                                 <button
-                                  onClick={() => handleRemoveArchitect(architect.githubUsername)}
+                                  onClick={() => handleDeleteArchitect(architect.githubUsername, architect.displayName)}
                                   className="px-3 py-1 text-sm text-red-600 border border-red-300 rounded hover:bg-red-50"
                                 >
-                                  Deactivate
+                                  Delete
                                 </button>
-                              )}
+                              </div>
                             </div>
                           </div>
                         ))}
