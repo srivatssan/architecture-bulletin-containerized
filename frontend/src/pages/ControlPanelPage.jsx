@@ -7,10 +7,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { usePosts } from '../hooks/usePosts';
-import { ROUTES, APP_MODE } from '../utils/constants';
+import { ROUTES } from '../utils/constants';
 import AddArchitectModal from '../components/admin/AddArchitectModal';
-import { getLocalUsers, addLocalArchitect, removeLocalArchitect } from '../services/localDataService';
-import { getArchitects } from '../services/configService';
 import apiClient from '../services/apiClient';
 
 const ControlPanelPage = () => {
@@ -25,9 +23,7 @@ const ControlPanelPage = () => {
   const [postsView, setPostsView] = useState('active'); // 'active' or 'archived'
 
   // Data state
-  const [users, setUsers] = useState([]);
   const [architects, setArchitects] = useState([]);
-  const [newCredentials, setNewCredentials] = useState(null);
 
   // Load data
   useEffect(() => {
@@ -40,16 +36,12 @@ const ControlPanelPage = () => {
       setIsLoading(true);
       setError('');
 
-      if (APP_MODE === 'local') {
-        // Load users from local storage
-        const usersResult = await getLocalUsers();
-        setUsers(usersResult.data.users || []);
-      }
-
-      // Load architects
-      const architectsResult = await getArchitects();
-      setArchitects(architectsResult.data.architects || []);
+      // Load architects from backend API
+      const architectsResponse = await apiClient.getArchitects();
+      console.log('Loaded architects:', architectsResponse);
+      setArchitects(architectsResponse.data.architects || []);
     } catch (err) {
+      console.error('Failed to load architects:', err);
       setError('Failed to load data: ' + err.message);
     } finally {
       setIsLoading(false);
@@ -61,76 +53,54 @@ const ControlPanelPage = () => {
       setError('');
       setSuccess('');
 
-      if (APP_MODE === 'local') {
-        // Add architect to local storage
-        const result = await addLocalArchitect(formData);
+      // Add architect via backend API
+      console.log('Adding architect via backend API...');
 
-        // Show credentials
-        setNewCredentials({
-          username: result.user.username,
-          password: result.password,
-          displayName: result.user.displayName,
-        });
+      const currentArchitects = await apiClient.getArchitects();
+      console.log('Current architects response:', currentArchitects);
+      const existingArchitects = currentArchitects.data.architects || [];
 
-        setSuccess(`Architect "${result.user.displayName}" added successfully!`);
+      // Create new architect object
+      const newArchitect = {
+        id: `arch-${Date.now()}`,
+        githubUsername: formData.githubUsername,
+        displayName: formData.displayName,
+        email: formData.email || '',
+        specialization: formData.specialization || '',
+        status: 'active',
+        addedAt: new Date().toISOString(),
+        addedBy: user.username,
+        deactivatedAt: null,
+        deactivatedBy: null,
+      };
 
-        // Reload data
-        await loadData();
+      console.log('New architect to add:', newArchitect);
 
-        // Close modal after a delay
-        setTimeout(() => {
-          setIsAddModalOpen(false);
-        }, 500);
-      } else {
-        // Add architect via backend API
-        console.log('Adding architect via backend API...');
+      // Check if architect already exists
+      const exists = existingArchitects.some(
+        a => a.githubUsername === formData.githubUsername
+      );
 
-        const currentArchitects = await apiClient.getArchitects();
-        console.log('Current architects response:', currentArchitects);
-        const existingArchitects = currentArchitects.data.architects || [];
-
-        // Create new architect object
-        const newArchitect = {
-          id: `arch-${Date.now()}`,
-          githubUsername: formData.githubUsername,
-          displayName: formData.displayName,
-          email: formData.email || '',
-          specialization: formData.specialization || '',
-          status: 'active',
-          addedAt: new Date().toISOString(),
-          addedBy: user.username,
-          deactivatedAt: null,
-          deactivatedBy: null,
-        };
-
-        console.log('New architect to add:', newArchitect);
-
-        // Check if architect already exists
-        const exists = existingArchitects.some(
-          a => a.githubUsername === formData.githubUsername
-        );
-
-        if (exists) {
-          throw new Error(`Architect ${formData.githubUsername} already exists`);
-        }
-
-        const updatedArchitects = [...existingArchitects, newArchitect];
-        console.log('Sending architects to backend:', updatedArchitects);
-
-        // Update architects list via API
-        const updateResponse = await apiClient.updateArchitects(updatedArchitects);
-        console.log('Backend update response:', updateResponse);
-
-        setSuccess(`Architect "${formData.displayName}" added successfully!`);
-
-        // Reload data
-        await loadData();
-
-        // Close modal after a delay
-        setTimeout(() => {
-          setIsAddModalOpen(false);
-        }, 500);
+      if (exists) {
+        throw new Error(`Architect ${formData.githubUsername} already exists`);
       }
+
+      const updatedArchitects = [...existingArchitects, newArchitect];
+      console.log('Sending architects to backend:', updatedArchitects);
+
+      // Update architects list via API
+      const updateResponse = await apiClient.updateArchitects(updatedArchitects);
+      console.log('Backend update response:', updateResponse);
+
+      setSuccess(`Architect "${formData.displayName}" added successfully!`);
+
+      // Reload data
+      await loadData();
+
+      // Close modal after a delay
+      setTimeout(() => {
+        setIsAddModalOpen(false);
+      }, 500);
     } catch (err) {
       console.error('Error adding architect:', err);
       setError(`Failed to add architect: ${err.message}`);
@@ -147,34 +117,28 @@ const ControlPanelPage = () => {
       setError('');
       setSuccess('');
 
-      if (APP_MODE === 'local') {
-        await removeLocalArchitect(username);
-        setSuccess(`Architect "${username}" has been deactivated.`);
-        await loadData();
-      } else {
-        // Remove architect via backend API
-        const currentArchitects = await apiClient.getArchitects();
-        const existingArchitects = currentArchitects.data.architects || [];
+      // Remove architect via backend API
+      const currentArchitects = await apiClient.getArchitects();
+      const existingArchitects = currentArchitects.data.architects || [];
 
-        // Find and deactivate the architect
-        const updatedArchitects = existingArchitects.map(arch => {
-          if (arch.githubUsername === username) {
-            return {
-              ...arch,
-              status: 'inactive',
-              deactivatedAt: new Date().toISOString(),
-              deactivatedBy: user.username,
-            };
-          }
-          return arch;
-        });
+      // Find and deactivate the architect
+      const updatedArchitects = existingArchitects.map(arch => {
+        if (arch.githubUsername === username) {
+          return {
+            ...arch,
+            status: 'inactive',
+            deactivatedAt: new Date().toISOString(),
+            deactivatedBy: user.username,
+          };
+        }
+        return arch;
+      });
 
-        // Update architects list via API
-        await apiClient.updateArchitects(updatedArchitects);
+      // Update architects list via API
+      await apiClient.updateArchitects(updatedArchitects);
 
-        setSuccess(`Architect "${username}" has been deactivated.`);
-        await loadData();
-      }
+      setSuccess(`Architect "${username}" has been deactivated.`);
+      await loadData();
     } catch (err) {
       setError('Failed to remove architect: ' + err.message);
     }
