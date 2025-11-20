@@ -8,8 +8,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { usePosts } from '../hooks/usePosts';
-import { ROUTES, APP_MODE } from '../utils/constants';
-import { getLocalArchitects } from '../services/localDataService';
+import { ROUTES } from '../utils/constants';
+import apiClient from '../services/apiClient';
 import { downloadFile } from '../utils/fileDownload';
 import EditPostModal from '../components/posts/EditPostModal';
 import ChatPanel from '../components/chat/ChatPanel';
@@ -42,11 +42,10 @@ const PostDetailPage = () => {
 
   const loadArchitects = async () => {
     try {
-      if (APP_MODE === 'local') {
-        const architectsList = await getLocalArchitects();
-        setArchitects(architectsList);
+      const response = await apiClient.getArchitects();
+      if (response.success && response.data) {
+        setArchitects(response.data.architects || []);
       }
-      // TODO: Add GitHub mode support for fetching architects
     } catch (err) {
       console.error('Failed to load architects:', err);
     }
