@@ -11,6 +11,7 @@ import { ROUTES, APP_MODE } from '../utils/constants';
 import AddArchitectModal from '../components/admin/AddArchitectModal';
 import { getLocalUsers, addLocalArchitect, removeLocalArchitect } from '../services/localDataService';
 import { getArchitects } from '../services/configService';
+import apiClient from '../services/apiClient';
 
 const ControlPanelPage = () => {
   const navigate = useNavigate();
@@ -80,6 +81,46 @@ const ControlPanelPage = () => {
         setTimeout(() => {
           setIsAddModalOpen(false);
         }, 500);
+      } else {
+        // Add architect via backend API
+        const currentArchitects = await apiClient.getArchitects();
+        const existingArchitects = currentArchitects.data.architects || [];
+
+        // Create new architect object
+        const newArchitect = {
+          id: `arch-${Date.now()}`,
+          githubUsername: formData.githubUsername,
+          displayName: formData.displayName,
+          email: formData.email || '',
+          specialization: formData.specialization || '',
+          status: 'active',
+          addedAt: new Date().toISOString(),
+          addedBy: user.username,
+          deactivatedAt: null,
+          deactivatedBy: null,
+        };
+
+        // Check if architect already exists
+        const exists = existingArchitects.some(
+          a => a.githubUsername === formData.githubUsername
+        );
+
+        if (exists) {
+          throw new Error(`Architect ${formData.githubUsername} already exists`);
+        }
+
+        // Update architects list via API
+        await apiClient.updateArchitects([...existingArchitects, newArchitect]);
+
+        setSuccess(`Architect "${formData.displayName}" added successfully!`);
+
+        // Reload data
+        await loadData();
+
+        // Close modal after a delay
+        setTimeout(() => {
+          setIsAddModalOpen(false);
+        }, 500);
       }
     } catch (err) {
       throw err; // Re-throw to be handled by modal
@@ -97,6 +138,29 @@ const ControlPanelPage = () => {
 
       if (APP_MODE === 'local') {
         await removeLocalArchitect(username);
+        setSuccess(`Architect "${username}" has been deactivated.`);
+        await loadData();
+      } else {
+        // Remove architect via backend API
+        const currentArchitects = await apiClient.getArchitects();
+        const existingArchitects = currentArchitects.data.architects || [];
+
+        // Find and deactivate the architect
+        const updatedArchitects = existingArchitects.map(arch => {
+          if (arch.githubUsername === username) {
+            return {
+              ...arch,
+              status: 'inactive',
+              deactivatedAt: new Date().toISOString(),
+              deactivatedBy: user.username,
+            };
+          }
+          return arch;
+        });
+
+        // Update architects list via API
+        await apiClient.updateArchitects(updatedArchitects);
+
         setSuccess(`Architect "${username}" has been deactivated.`);
         await loadData();
       }
